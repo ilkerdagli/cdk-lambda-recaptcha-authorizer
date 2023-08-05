@@ -7,11 +7,14 @@ const project = new awscdk.AwsCdkConstructLibrary({
   jsiiVersion: '~5.0.0',
   name: 'cdk-lambda-recaptcha-authorizer',
   projenrcTs: true,
-  repositoryUrl: 'https://github.com/daglilker/cdk-lambda-recaptcha-authorizer.git',
-
-  // deps: [],                /* Runtime dependencies of this module. */
-  // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
-  // devDeps: [],             /* Build dependencies for this module. */
-  // packageName: undefined,  /* The "name" in package.json. */
+  repositoryUrl: 'https://github.com/ilkerdagli/cdk-lambda-recaptcha-authorizer.git',
+  description: 'Custom construct for AWS CDK that provides an easy way to integrate reCAPTCHA-based authorization with Amazon API Gateway.',
+  keywords: ['awscdk', 'aws', 'cdk', 'lambda', 'recaptcha', 'authorizer', 'api-gateway'],
+  license: 'MIT',
+  publishToPypi: {
+    distName: 'cdk-lambda-recaptcha-authorizer',
+    module: 'cdk_lambda_recaptcha_authorizer',
+  },
+  stability: 'experimental',
 });
 project.synth();
