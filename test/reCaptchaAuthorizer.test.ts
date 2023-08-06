@@ -48,6 +48,17 @@ test('Lambda functions should be configured with properties and execution roles'
     },
   });
 });
+test('Lambda functions should have environment variables', () => {
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    Environment: {
+      Variables: {
+        RECAPTCHA_SECRET_KEY: 'RECAPTCHA_SECRET_KEY',
+        RECAPTCHA_VERSION: 'v2',
+      },
+    },
+  });
+});
+
 
 test('Authorizer should be created with default header name', () => {
   template.hasResourceProperties('AWS::ApiGateway::Authorizer', {
