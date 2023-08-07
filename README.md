@@ -73,7 +73,6 @@ Here's an example form in html that sends recaptcha challange response in header
       <form
          id="demoForm"
          method="POST"
-         action="https://2gq78p3228.execute-api.us-east-1.amazonaws.com/prod/submitForm"
          >
          <label for="name">Name:</label>
          <input type="text" id="name" name="name" required />
