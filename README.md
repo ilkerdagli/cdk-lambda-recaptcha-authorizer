@@ -16,7 +16,6 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import path = require('path');
 import { ReCaptchaAuthorizer } from 'cdk-lambda-recaptcha-authorizer';
 
 export class LraExampleStack extends cdk.Stack {
