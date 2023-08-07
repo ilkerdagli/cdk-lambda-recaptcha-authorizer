@@ -24,7 +24,8 @@ exports.handler = async (event) => {
     }
 
     const userResponseToken =
-      headers[challangeResponseHeaderName || "X-Recaptcha-Response"]
+      headers[challangeResponseHeaderName] ||
+      headers[challangeResponseHeaderName.toLowerCase()]
 
     if (userResponseToken) {
       let response
