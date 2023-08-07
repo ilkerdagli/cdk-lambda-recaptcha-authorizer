@@ -15,7 +15,8 @@ export interface IReCaptchaAuthorizerProps {
 
 // Custom construct class for ReCaptchaAuthorizer
 export class ReCaptchaAuthorizer extends Construct {
-  readonly authorizer: apigateway.RequestAuthorizer;
+
+  readonly authorizer: apigateway.RequestAuthorizer; // The API Gateway RequestAuthorizer
 
   constructor(scope: Construct, id: string, props: IReCaptchaAuthorizerProps) {
     super(scope, id);
@@ -24,7 +25,7 @@ export class ReCaptchaAuthorizer extends Construct {
     const authorizerLambda = new lambda.Function(this, 'ReCaptchaAuthorizerLambda', {
       runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'reCaptchaAuthorizerLambda.handler', // The handler function in the Lambda code
-      code: lambda.Code.fromAsset(path.join(__dirname, 'functions')), // Lambda code asset path
+      code: lambda.Code.fromAsset(path.join(__dirname, '../functions')), // Lambda code asset path
       environment: {
         RECAPTCHA_SECRET_KEY: props.reCaptchaSecretKey, // Set the ReCaptcha secret key as an environment variable
         RECAPTCHA_VERSION: props.reCaptchaVersion, // Set the ReCaptcha version as an environment variable
@@ -41,9 +42,5 @@ export class ReCaptchaAuthorizer extends Construct {
       resultsCacheTtl: cdk.Duration.seconds(0), // Cache TTL for authorizer results (disabled: 0 seconds)
     });
 
-    // Create an output to display the ReCaptchaAuthorizerId in the AWS CDK stack
-    new cdk.CfnOutput(this, 'ReCaptchaAuthorizerId', {
-      value: this.authorizer.authorizerId, // Output the ReCaptchaAuthorizer's ID
-    });
   }
 }
