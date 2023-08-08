@@ -18,37 +18,99 @@ import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { ReCaptchaAuthorizer } from 'cdk-lambda-recaptcha-authorizer';
 
-export class ExampleRecaptchaAuthorizerStack extends cdk.Stack {
+export class LraExampleStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const challangeResponseHeaderName = 'X-My-Header'
 
     const api = new apigw.RestApi(this, 'Api', {
       restApiName: 'API',
       description: 'API with reCAPTCHA authorizer',
+      defaultCorsPreflightOptions: {
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          challangeResponseHeaderName
+        ],
+        allowCredentials: true,
+        allowOrigins: ['*'],
+        allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      }
     });
 
-    // Create the ReCaptchaAuthorizer and provide your ReCaptcha secret key
     const reCaptchaAuthorizer = new ReCaptchaAuthorizer(this, 'ReCaptchaAuthorizer', {
-      reCaptchaSecretKey: 'YOUR_RECAPTCHA_SECRET_KEY',
-      reCaptchaVersion: 'v2', // Use 'v2' or 'v3'
-      // v3MinScoreRequired?: 0.5, // (Optional) Minimum score required for ReCaptcha v3
-      // v3Action?: 'your_custom_action', // (Optional) Specify a custom action for ReCaptcha v3
-      // challangeResponseHeaderName?: 'X-Recaptcha-Response', // (Optional) Custom header name for ReCaptcha token
-    });
+      reCaptchaSecretKey: 'YOUR-RECAPTCHA-SECRET-KEY',
+      reCaptchaVersion: 'v2',
+      challangeResponseHeaderName: challangeResponseHeaderName
+    })
 
-    // Create an API Gateway resource and associate the ReCaptchaAuthorizer with it
-    const resource = api.root.addResource('hello');
-    resource.addMethod('GET', new apigw.LambdaIntegration(new lambda.Function(this, 'Lambda', {
+    const resource = api.root.addResource('submitForm');
+
+    resource.addMethod('POST', new apigw.LambdaIntegration(new lambda.Function(this, 'Lambda', {
       runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'index.handler',
       code: lambda.Code.fromInline('exports.handler = async () => { return { statusCode: 200, body: "Hello World!" }; };'),
     })), {
+
       authorizer: reCaptchaAuthorizer.authorizer,
       authorizationType: apigw.AuthorizationType.CUSTOM,
     });
   }
 }
 ```
+Here's an example form in html that sends recaptcha challange response in header:
+```html
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>reCAPTCHA v2 Demo</title>
+      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+   </head>
+   <body>
+      <h1>reCAPTCHA v2 Demo Form</h1>
+      <form
+         id="demoForm"
+         method="POST"
+         >
+         <label for="name">Name:</label>
+         <input type="text" id="name" name="name" required />
+         <br />
+         <div class="g-recaptcha" data-sitekey="YOUR-RECAPTCHA-SITE-KEY"></div>
+         <button type="submit">Submit</button>
+      </form>
+      <script>
+         const form = document.getElementById("demoForm")
+
+         form.addEventListener("submit", async (event) => {
+           event.preventDefault()
+           const recaptchaResponse = grecaptcha.getResponse()
+
+           if (recaptchaResponse === "") {
+             alert("Please complete the reCAPTCHA verification.")
+             return
+           }
+
+           const headers = new Headers()
+           headers.append("X-My-Header", recaptchaResponse)
+
+           const response = await fetch("YOUR-API-GATEWAY-URL", {
+             method: "POST",
+             headers: headers,
+             body: new FormData(form),
+           })
+
+           if (response.ok) {
+             alert("Form submitted successfully!")
+           } else {
+             alert("Form submission failed. Please try again later.")
+           }
+         })
+      </script>
+   </body>
+</html>
+```
+
 
 ## Configuration
 The `ReCaptchaAuthorizer` accepts the following configuration options:
