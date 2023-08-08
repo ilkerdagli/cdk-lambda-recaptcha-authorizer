@@ -26,7 +26,7 @@ resource.addMethod('POST', new apigw.LambdaIntegration(new lambda.Function(stack
   handler: 'index.handler',
   code: lambda.Code.fromInline('exports.handler = async () => { return { statusCode: 200, body: "Hello World!" }; };'),
 })), {
-  authorizer: authorizer.authorizer,
+  authorizer: authorizer,
   authorizationType: apigw.AuthorizationType.CUSTOM,
 });
 

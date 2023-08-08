@@ -5,20 +5,21 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 // Interface for the ReCaptchaAuthorizerProps
-export interface IReCaptchaAuthorizerProps {
-  reCaptchaSecretKey: string; // Secret key for ReCaptcha
-  reCaptchaVersion: 'v2' | 'v3'; // ReCaptcha version to use, either 'v2' or 'v3'
-  v3MinScoreRequired?: number; // (Only for ReCaptcha v3) Minimum score required for successful authorization
-  v3Action?: string; // (Only for ReCaptcha v3) Action name for ReCaptcha v3 verification
-  challangeResponseHeaderName?: string; // Name of the header containing the ReCaptcha response token
+export interface ReCaptchaAuthorizerProps {
+  readonly reCaptchaSecretKey: string; // Secret key for ReCaptcha
+  readonly reCaptchaVersion: 'v2' | 'v3'; // ReCaptcha version to use, either 'v2' or 'v3'
+  readonly v3MinScoreRequired?: number; // (Only for ReCaptcha v3) Minimum score required for successful authorization
+  readonly v3Action?: string; // (Only for ReCaptcha v3) Action name for ReCaptcha v3 verification
+  readonly challangeResponseHeaderName?: string; // Name of the header containing the ReCaptcha response token
 }
 
 // Custom construct class for ReCaptchaAuthorizer
-export class ReCaptchaAuthorizer extends Construct {
+export class ReCaptchaAuthorizer extends apigateway.Authorizer implements apigateway.IAuthorizer {
 
-  readonly authorizer: apigateway.RequestAuthorizer; // The API Gateway RequestAuthorizer
+  readonly authorizerId: string; // The API Gateway RequestAuthorizer
+  readonly authorizer : apigateway.RequestAuthorizer; // The API Gateway RequestAuthorizer
 
-  constructor(scope: Construct, id: string, props: IReCaptchaAuthorizerProps) {
+  constructor(scope: Construct, id: string, props: ReCaptchaAuthorizerProps) {
     super(scope, id);
 
     // Create an AWS Lambda function for the ReCaptcha authorizer
@@ -42,5 +43,17 @@ export class ReCaptchaAuthorizer extends Construct {
       resultsCacheTtl: cdk.Duration.seconds(0), // Cache TTL for authorizer results (disabled: 0 seconds)
     });
 
+    this.authorizerId = this.authorizer.authorizerId; // Set the authorizerId
+  }
+
+  /**
+    * Attach the authorizer to an API Gateway RestApi
+    * @param restApi The API Gateway RestApi to attach the authorizer to
+    * @returns void
+    * @internal
+  **/
+  _attachToApi(restApi: cdk.aws_apigateway.IRestApi): void {
+    // eslint-disable-next-line no-underscore-dangle
+    this.authorizer._attachToApi(restApi);
   }
 }

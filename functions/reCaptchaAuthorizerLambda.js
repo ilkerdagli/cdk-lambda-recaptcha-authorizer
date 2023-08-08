@@ -19,7 +19,7 @@ exports.handler = async (event) => {
       )
     }
 
-    if (!headers) {
+    if (!headers || !challangeResponseHeaderName) {
       throw new Error("No reCAPTCHA token found in the request.")
     }
 

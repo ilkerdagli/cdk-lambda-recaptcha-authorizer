@@ -53,7 +53,7 @@ export class LraExampleStack extends cdk.Stack {
       code: lambda.Code.fromInline('exports.handler = async () => { return { statusCode: 200, body: "Hello World!" }; };'),
     })), {
 
-      authorizer: reCaptchaAuthorizer.authorizer,
+      authorizer: reCaptchaAuthorizer,
       authorizationType: apigw.AuthorizationType.CUSTOM,
     });
   }
